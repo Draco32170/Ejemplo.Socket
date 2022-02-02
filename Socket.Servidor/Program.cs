@@ -4,13 +4,15 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-
+using Comun;
 namespace Calculator.Servidor
 {
     internal class Program
     {
+        
         static void Main(string[] args)
         {
+            resultado r = new resultado();
             IPHostEntry host = Dns.GetHostEntry("localhost");
             IPAddress ipAddress = host.AddressList[0];
 
@@ -44,10 +46,28 @@ namespace Calculator.Servidor
                     {
                         var mensaje = Encoding.UTF8.GetString(cacheMenaje, 0, bytesMenaje);
 
-                        var respuesta = "Ok: " + mensaje;
+                       
 
-                        Console.WriteLine("{0} -> {1}", mensaje, respuesta);
+                        Operacion operacion = JsonSerializer.Deserialize<Operacion>(mensaje);
 
+                        switch (operacion.tipoOperaciones)
+                        {
+                            case TipoOperacion.suma:
+                               r.result= opSuma(operacion.operando1,operacion.operando2);
+                                break;
+                            case TipoOperacion.resta:
+                                   r.result= opResta(operacion.operando1, operacion.operando2);
+                                break;
+                            case TipoOperacion.multiplicacion:
+                                r.result=opMultiplicacion(operacion.operando1, operacion.operando2);
+                                break;
+                            case TipoOperacion.division:
+                                r.result=opDivision(operacion.operando1, operacion.operando2);
+                                break;
+                        }
+
+                        Console.WriteLine("{0} -> {1}", mensaje, r.result);
+                        String respuesta = JsonSerializer.Serialize(r);
                         var cacheRespuesta = Encoding.UTF8.GetBytes(respuesta);
                         handler.Send(cacheRespuesta);
                         Thread.Sleep(0);
@@ -64,6 +84,26 @@ namespace Calculator.Servidor
 
             Console.WriteLine("\n Press any key to continue...");
             Console.ReadKey();
+        }
+        public static double opSuma(double operando1, double operando2)
+        {
+            double suma = operando1 + operando2;
+            return suma;
+        }
+        public static double opResta(double operando1, double operando2)
+        {
+            double resta = operando1 - operando2;
+            return resta;
+        }
+        public static double opMultiplicacion(double operando1, double operando2)
+        {
+            double mult = operando1 * operando2;
+            return mult;
+        }
+        public static double opDivision(double operando1, double operando2)
+        {
+            double div = operando1 / operando2;
+            return div;
         }
     }
 }

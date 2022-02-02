@@ -5,4 +5,7 @@
 		<FileUpgradeFlags>
 		</FileUpgradeFlags>
 	</PropertyGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Comun\Comun.csproj" />
+	</ItemGroup>
 </Project>

@@ -6,32 +6,57 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Linq;
-
+using Comun;
 namespace Calculator.Cliente
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            resultado r = new resultado();
             Console.WriteLine("Console C#\r");
             Console.WriteLine("------------------------\n");
 
             while (true)
             {
-                Console.WriteLine("Mensaje:");
-                string mensaje = Console.ReadLine();
+                Operacion op = new Operacion();
+                Console.WriteLine("Escribe el primer numero");
+                op.operando1 = Convert.ToDouble(Console.ReadLine());
+                //Console.WriteLine("Mensaje:");
 
+                Console.WriteLine("Escribe el segundo número");
+                op.operando2 = Convert.ToDouble(Console.ReadLine());
+
+                 Console.WriteLine("Escribe una opración");
+                string opc = Console.ReadLine();
+                switch (opc)
+                {
+                    case "suma":
+                        op.tipoOperaciones = TipoOperacion.suma;
+                        break;
+                    case "resta":
+                        op.tipoOperaciones = TipoOperacion.resta;
+                        break;
+                    case "multiplicacion":
+                        op.tipoOperaciones = TipoOperacion.multiplicacion;
+                        break;
+                    case "division":
+                        op.tipoOperaciones = TipoOperacion.division;
+                        break;
+                }
+                String mensaje = JsonSerializer.Serialize(op);
                 var resultado = EnviaMenaje(mensaje);
+                
 
-                Console.WriteLine(resultado);
+               
+                Console.WriteLine(r.result);
             }
 
-            Console.Write("Press any key to close the Calculator console app...");
-            Console.ReadKey();
         }
 
         static string EnviaMenaje(string mensaje)
         {
+            resultado r = new resultado();
             try
             {
                 // Connect to a Remote server
@@ -72,6 +97,8 @@ namespace Calculator.Cliente
                     int bytesRec1 = sender.Receive(bufferRec);
 
                     var resultado = Encoding.UTF8.GetString(bufferRec, 0, bytesRec1);
+                    r = JsonSerializer.Deserialize<resultado>(resultado);
+                    Console.WriteLine("El resultado es " + r.result);
 
                     // Release the socket.
                     sender.Shutdown(SocketShutdown.Both);
